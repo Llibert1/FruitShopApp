@@ -8,54 +8,57 @@ package PKllibert;
 import java.awt.Color;
 import java.text.DecimalFormat;
 import javax.swing.JFrame;
-import java.util.Date;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javax.swing.Timer;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-public class JFrameFrut extends javax.swing.JFrame implements Runnable {
+public class JFrameFrut extends javax.swing.JFrame {
 
-    String hour, minutes, seconds;
-    Thread thread;
+    private DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private Timer clockTimer;
+    private String currentDate = "";
 
-    float totalPrice = 0;
-    float totalPriceNoVAT = 0;
+    private float totalPrice = 0;
+    private float totalPriceNoVAT = 0;
 
-    String product, product2, product3, product4, product5, product6, product7, product8, product9, product10, product11, product12;
-    float quantity, quantity2, quantity3, quantity4, quantity5, quantity6, quantity7, quantity8, quantity9, quantity10, quantity11, quantity12, price, price2, price3, price4,
+    private String product, product2, product3, product4, product5, product6, product7, product8, product9, product10, product11, product12;
+    private float quantity, quantity2, quantity3, quantity4, quantity5, quantity6, quantity7, quantity8, quantity9, quantity10, quantity11, quantity12, price, price2, price3, price4,
             price5, price6, price7, price8, price9, price10, price11, price12;
 
-    String[] products = {
+    private String[] products = {
         product, product2, product3, product4, product5, product6,
         product7, product8, product9, product10, product11, product12
     };
-    double[] quantities = {
+    private double[] quantities = {
         quantity, quantity2, quantity3, quantity4, quantity5, quantity6,
         quantity7, quantity8, quantity9, quantity10, quantity11, quantity12
     };
-    double[] prices = {
+    private double[] prices = {
         price, price2, price3, price4, price5, price6,
         price7, price8, price9, price10, price11, price12
     };
 
-    String[] validProducts = {
+    private String[] validProducts = {
         "Pear", "Apple", "Banana", "Grape", "Orange", "Peach",
         "Lemon", "Pineapple", "Strawberry", "Avocado", "Cherry", "Watermelon"
     };
 
-    float moneyReturned;
-    float moneyDelivered;
+    private float moneyReturned;
+    private float moneyDelivered;
 
-    DecimalFormat df = new DecimalFormat(" 0.00");
+    private DecimalFormat df = new DecimalFormat(" 0.00");
 
     //CONSTRUCTOR
     public JFrameFrut() {
         initComponents();
         initConfig();
-        lbdate.setText(date());
-        thread = new Thread(this);
-        thread.start();
+        startClockThread();
+        initDate();
+        startDateWatcher();
         setVisible(true);
     }
 
@@ -64,6 +67,53 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLocationRelativeTo(null);
 
+    }
+
+    private void startClockThread() {
+        clockTimer = new Timer(1000, e -> {
+            lbhour.setText(LocalDateTime.now().format(timeFormatter));
+        });
+
+        clockTimer.setInitialDelay(0);
+        clockTimer.start();
+    }
+
+    public void initDate() {
+        currentDate = LocalDate.now().format(dateFormatter);
+        lbdate.setText(currentDate);  
+    }
+
+    public void startDateWatcher() {
+        Timer dateTimer = new Timer(60_000, e -> {
+            String today = LocalDate.now().format(dateFormatter);
+            if (!today.equals(currentDate)) {
+                currentDate = today;
+                initDate();
+            }
+        });
+        currentDate = LocalDate.now().format(dateFormatter);
+        dateTimer.setInitialDelay(0);
+        dateTimer.start();
+    }
+
+    private void addProductToCart(String productName, int index, JLabel priceLabel) {
+        try {
+            float kg = Float.parseFloat(jTextFieldKg.getText());
+            float priceKg = Float.parseFloat(priceLabel.getText());
+            float actualPrice = priceKg * kg;
+
+            products[index] = productName;
+            quantities[index] += kg;
+            prices[index] += actualPrice;
+
+            jTextFieldUnitPrice.setText(String.valueOf(priceKg));
+            jTextFieldActualPrice.setText(String.valueOf(actualPrice));
+
+            totalPrice += actualPrice;
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for kilograms.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -788,10 +838,9 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
     private void jButtonChargeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonChargeActionPerformed
 
         StringBuilder txt = new StringBuilder();
+        LocalDateTime now = LocalDateTime.now();
 
         for (int i = 0; i < products.length; i++) {
-            System.out.println(validProducts[i]);
-            System.out.println(products[i]);
             if (validProducts[i].equals(products[i])) {
                 txt.append(String.format(
                         "\n Product: %-12s Quantity: %s   Price: %s\n",
@@ -827,32 +876,13 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
                 + "                   *\n");
 
         txt.append("\n Thank you for shopping at GoodFruit! :D\n");
-        txt.append(" Date: ").append(date()).append("\n");
-        txt.append(" Time: ").append(hour).append(":").append(minutes).append(":").append(seconds);
+
+        txt.append(" Date: ").append(now.format(dateFormatter)).append("\n");
+        txt.append(" Time: ").append(now.format(timeFormatter));
 
         jTextAreaList.setText(txt.toString());
 
     }//GEN-LAST:event_jButtonChargeActionPerformed
-
-    private void addProductToCart(String productName, int index, JLabel priceLabel) {
-        try {
-            float kg = Float.parseFloat(jTextFieldKg.getText());
-            float priceKg = Float.parseFloat(priceLabel.getText());
-            float actualPrice = priceKg * kg;
-
-            products[index] = productName;
-            quantities[index] += kg;
-            prices[index] += actualPrice;
-
-            jTextFieldUnitPrice.setText(String.valueOf(priceKg));
-            jTextFieldActualPrice.setText(String.valueOf(actualPrice));
-
-            totalPrice += actualPrice;
-
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid number for kilograms.", "Input Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
 
     private void jButtonPearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPearActionPerformed
         addProductToCart("Pear", 0, jLabelPear);
@@ -953,35 +983,6 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
             prices[i] = 0;
         }
     }//GEN-LAST:event_jButtonResetActionPerformed
-
-    /**
-     * @param args the command line arguments
-     * @return
-     */
-    public static String date() {
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/YYYY");
-        return dateFormat.format(date);
-    }
-
-    public void hour() {
-        Calendar calendar = new GregorianCalendar();
-        Date actualHour = new Date();
-        calendar.setTime(actualHour);
-        hour = calendar.get(Calendar.HOUR_OF_DAY) > 9 ? "" + calendar.get(Calendar.HOUR_OF_DAY) : "0" + calendar.get(Calendar.HOUR_OF_DAY);
-        minutes = calendar.get(Calendar.MINUTE) > 9 ? "" + calendar.get(Calendar.MINUTE) : "0" + calendar.get(Calendar.MINUTE);
-        seconds = calendar.get(Calendar.SECOND) > 9 ? "" + calendar.get(Calendar.SECOND) : "0" + calendar.get(Calendar.SECOND);
-    }
-
-    @Override
-    public void run() {
-        Thread current = Thread.currentThread();
-
-        while (current == thread) {
-            hour();
-            lbhour.setText(hour + ":" + minutes + ":" + seconds);
-        }
-    }
 
     /**
      *
