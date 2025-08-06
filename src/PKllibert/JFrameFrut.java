@@ -11,6 +11,8 @@ import javax.swing.JFrame;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 public class JFrameFrut extends javax.swing.JFrame implements Runnable {
 
@@ -18,7 +20,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
     Thread thread;
 
     float totalPrice = 0;
-    float totalPriceNoIva = 0;
+    float totalPriceNoVAT = 0;
 
     String product, product2, product3, product4, product5, product6, product7, product8, product9, product10, product11, product12;
     float quantity, quantity2, quantity3, quantity4, quantity5, quantity6, quantity7, quantity8, quantity9, quantity10, quantity11, quantity12, price, price2, price3, price4,
@@ -843,7 +845,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         }
 
         txt.append("\n ------------------------------------------------------------ \n\n");
-        txt.append(" Total price (excl. VAT):     ").append(df.format(totalPriceNoIva)).append("\n");
+        txt.append(" Total price (excl. VAT):     ").append(df.format(totalPriceNoVAT)).append("\n");
         txt.append(" VAT applied:                 ").append(jComboBoxIVA.getSelectedItem().toString()).append("%\n");
         txt.append(" Total price (incl. VAT):     ").append(df.format(totalPrice)).append("\n");
         txt.append(" Amount paid:                 ").append(df.format(moneyDelivered)).append("\n");
@@ -876,233 +878,96 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldMoneyReturnedActionPerformed
 
+    private void addProductToCart(String productName, int index, JLabel priceLabel) {
+        try {
+            float kg = Float.parseFloat(jTextFieldKg.getText());
+            float priceKg = Float.parseFloat(priceLabel.getText());
+            float actualPrice = priceKg * kg;
+
+            products[index] = productName;
+            quantities[index] += kg;
+            prices[index] += actualPrice;
+
+            jTextFieldUnitPrice.setText(String.valueOf(priceKg));
+            jTextFieldActualPrice.setText(String.valueOf(actualPrice));
+
+            totalPrice += actualPrice;
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for kilograms.", "Input Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void jButtonPearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPearActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelPear.getText());
-        float actualPrice1 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelPear.getText());
-
-        products[0] = "Pear";
-        quantities[0] += Float.parseFloat(jTextFieldKg.getText());
-        prices[0] += actualPrice1;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice1);
-
-        totalPrice += actualPrice1;
-
+        addProductToCart("Pear", 0, jLabelPear);
     }//GEN-LAST:event_jButtonPearActionPerformed
 
 
     private void jButtonAppleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAppleActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelApple.getText());
-        float actualPrice2 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelApple.getText());
-
-        products[1] = "Apple";
-        quantities[1] += Float.parseFloat(jTextFieldKg.getText());
-        prices[1] += actualPrice2;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice2);
-
-        totalPrice += actualPrice2;
-
+        addProductToCart("Apple", 1, jLabelApple);
     }//GEN-LAST:event_jButtonAppleActionPerformed
 
     private void jButtonBananaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBananaActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelBanana.getText());
-        float actualPrice3 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelBanana.getText());
-
-        product3 = "Banana";
-        quantity3 += Float.parseFloat(jTextFieldKg.getText());
-        price3 += actualPrice3;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + df.format(actualPrice3));
-
-        totalPrice += actualPrice3;
-
+        addProductToCart("Banana", 2, jLabelBanana);
     }//GEN-LAST:event_jButtonBananaActionPerformed
 
     private void jButtonGrapeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGrapeActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelGrape.getText());
-        float actualPrice4 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelGrape.getText());
-
-        product4 = "Grape";
-        quantity4 += Float.parseFloat(jTextFieldKg.getText());
-        price4 += actualPrice4;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice4);
-
-        totalPrice += actualPrice4;
-
+        addProductToCart("Grape", 3, jLabelGrape);
     }//GEN-LAST:event_jButtonGrapeActionPerformed
 
     private void jButtonOrangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOrangeActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelOrange.getText());
-        float actualPrice5 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelOrange.getText());
-
-        product5 = "Orange";
-        quantity5 += Float.parseFloat(jTextFieldKg.getText());
-        price5 += actualPrice5;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + df.format(actualPrice5));
-
-        totalPrice += actualPrice5;
-
+        addProductToCart("Orange", 4, jLabelOrange);
     }//GEN-LAST:event_jButtonOrangeActionPerformed
 
     private void jButtonPeachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPeachActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelPeach.getText());
-        float actualPrice6 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelPeach.getText());
-
-        product6 = "Peach";
-        quantity6 += Float.parseFloat(jTextFieldKg.getText());
-        price6 += actualPrice6;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice6);
-
-        totalPrice += actualPrice6;
-
-
+        addProductToCart("Peach", 5, jLabelPeach);
     }//GEN-LAST:event_jButtonPeachActionPerformed
 
     private void jButtonLemonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLemonActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelLemon.getText());
-        float actualPrice7 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelLemon.getText());
-
-        product7 = "Lemon";
-        quantity7 += Float.parseFloat(jTextFieldKg.getText());
-        price7 += actualPrice7;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice7);
-
-        totalPrice += actualPrice7;
-
-
+        addProductToCart("Lemon", 6, jLabelLemon);
     }//GEN-LAST:event_jButtonLemonActionPerformed
 
     private void jButtonPineappleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPineappleActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelPineapple.getText());
-        float actualPrice8 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelPineapple.getText());
-
-        product8 = "Pineapple";
-        quantity8 += Float.parseFloat(jTextFieldKg.getText());
-        price8 += actualPrice8;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice8);
-
-        totalPrice += actualPrice8;
-
-
+        addProductToCart("Pineapple", 7, jLabelPineapple);
     }//GEN-LAST:event_jButtonPineappleActionPerformed
 
     private void jButtonStrawberryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStrawberryActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelStrawberry.getText());
-        float actualPrice9 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelStrawberry.getText());
-
-        product9 = "Strawberry";
-        quantity9 += Float.parseFloat(jTextFieldKg.getText());
-        price9 += actualPrice9;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice9);
-
-        totalPrice += actualPrice9;
-
+        addProductToCart("Strawberry", 8, jLabelStrawberry);
     }//GEN-LAST:event_jButtonStrawberryActionPerformed
 
     private void jButtonAvocadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAvocadoActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelAvocado.getText());
-        float actualPrice10 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelAvocado.getText());
-        product10 = "Avocado";
-        quantity10 += Float.parseFloat(jTextFieldKg.getText());
-        price10 += actualPrice10;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice10);
-
-        totalPrice += actualPrice10;
-
-
+        addProductToCart("Avocado", 9, jLabelAvocado);
     }//GEN-LAST:event_jButtonAvocadoActionPerformed
 
     private void jButtonCherryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCherryActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelCherry.getText());
-        float actualPrice11 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelCherry.getText());
-
-        product11 = "Cherry";
-        quantity11 += Float.parseFloat(jTextFieldKg.getText());
-        price11 += actualPrice11;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + df.format(actualPrice11));
-
-        totalPrice += actualPrice11;
-
-
+        addProductToCart("Cherry", 10, jLabelCherry);
     }//GEN-LAST:event_jButtonCherryActionPerformed
 
     private void jButtonWatermelonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonWatermelonActionPerformed
-        float kg = Float.parseFloat(jTextFieldKg.getText());
-        float priceKg = Float.parseFloat(jLabelWatermelon.getText());
-        float actualPrice12 = priceKg * kg;
-        float unitPrice = Float.parseFloat(jLabelWatermelon.getText());
-
-        product12 = "Watermelon";
-        quantity12 += Float.parseFloat(jTextFieldKg.getText());
-        price12 += actualPrice12;
-
-        jTextFieldUnitPrice.setText(String.valueOf(unitPrice));
-        jTextFieldActualPrice.setText("" + actualPrice12);
-
-        totalPrice += actualPrice12;
-
+        addProductToCart("Watermelon", 11, jLabelWatermelon);
     }//GEN-LAST:event_jButtonWatermelonActionPerformed
 
     private void jButtonCalculatePriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCalculatePriceActionPerformed
-        float IVA = Float.parseFloat(jComboBoxIVA.getSelectedItem().toString());
-        totalPriceNoIva = totalPrice / (1 + IVA / 100);
+        float VAT = Float.parseFloat(jComboBoxIVA.getSelectedItem().toString());
+        totalPriceNoVAT = totalPrice / (1 + VAT / 100);
         jTextFieldTotalPrice.setText(String.valueOf(df.format(totalPrice)));
-        jTextFieldTotalPriceNoIva.setText(String.valueOf(df.format(totalPriceNoIva)));
+        jTextFieldTotalPriceNoIva.setText(String.valueOf(df.format(totalPriceNoVAT)));
     }//GEN-LAST:event_jButtonCalculatePriceActionPerformed
 
     private void jButtonReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReturnActionPerformed
-        String txt2 = " ";
+        try {
+            moneyDelivered = Float.parseFloat(jTextFieldMoneyDelivered.getText());
+            moneyReturned = moneyDelivered - totalPrice;
 
-        moneyDelivered = Float.parseFloat(jTextFieldMoneyDelivered.getText());
-        moneyReturned = moneyDelivered - totalPrice;
+            if (moneyReturned < 0) {
+                jTextFieldMoneyReturned.setText("Not enough money");
+            } else {
+                jTextFieldMoneyReturned.setText(df.format(moneyReturned));
+            }
 
-        if (moneyReturned < 0) {
-            txt2 += "Not enoguht money";
-            jTextFieldMoneyReturned.setText(txt2);
-        } else {
-            jTextFieldMoneyReturned.setText(String.valueOf(df.format(moneyReturned)));
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid number for money delivered.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            jTextFieldMoneyReturned.setText("");
         }
 
     }//GEN-LAST:event_jButtonReturnActionPerformed
@@ -1121,58 +986,30 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
 
     private void jButtonResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonResetActionPerformed
 
-        jTextFieldTotalPrice.setText(" 0 ");
-        jTextFieldTotalPriceNoIva.setText(" 0 ");
-        jTextFieldActualPrice.setText(" 0 ");
-        jTextFieldKg.setText(" 0 ");
-        jTextFieldMoneyDelivered.setText(" 0 ");
-        jTextFieldMoneyReturned.setText(" 0 ");
-        jTextFieldUnitPrice.setText(" 0 ");
-        jTextAreaList.setText("Click \"charge\" after choosing the fruits: ");
+        // Reset text fields
+        jTextFieldTotalPrice.setText("0");
+        jTextFieldTotalPriceNoIva.setText("0");
+        jTextFieldActualPrice.setText("0");
+        jTextFieldKg.setText("0");
+        jTextFieldMoneyDelivered.setText("0");
+        jTextFieldMoneyReturned.setText("0");
+        jTextFieldUnitPrice.setText("0");
+
+        // Reset text area
+        jTextAreaList.setText("Click \"Charge\" after choosing the fruits:");
+
+        // Reset prices
         totalPrice = 0;
-        totalPriceNoIva = 0;
-        product = "null";
-        quantity = 0;
-        price = 0;
-        product2 = "null";
-        quantity2 = 0;
-        price2 = 0;
-        product3 = "null";
-        quantity3 = 0;
-        price3 = 0;
-        product4 = "null";
-        quantity4 = 0;
-        price4 = 0;
-        product5 = "null";
-        quantity5 = 0;
-        price5 = 0;
-        product6 = "null";
-        quantity6 = 0;
-        price6 = 0;
-        product7 = "null";
-        quantity7 = 0;
-        price7 = 0;
-        product8 = "null";
-        quantity8 = 0;
-        price8 = 0;
-        product9 = "null";
-        quantity9 = 0;
-        price9 = 0;
-        product10 = "null";
-        quantity10 = 0;
-        price10 = 0;
-        product11 = "null";
-        quantity11 = 0;
-        price11 = 0;
-        product12 = "null";
-        quantity12 = 0;
-        price12 = 0;
+        totalPriceNoVAT = 0;
+
+        // Reset arrays
+        for (int i = 0; i < products.length; i++) {
+            products[i] = null;
+            quantities[i] = 0;
+            prices[i] = 0;
+        }
     }//GEN-LAST:event_jButtonResetActionPerformed
 
-    /**
-     * @param args the command line arguments
-     * @return
-     */
     /**
      * @param args the command line arguments
      * @return
