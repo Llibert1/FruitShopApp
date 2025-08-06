@@ -126,7 +126,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         jButtonReturn = new javax.swing.JButton();
         jLabel37 = new javax.swing.JLabel();
         jTextFieldTotalPrice = new javax.swing.JTextField();
-        jComboBoxIVA = new javax.swing.JComboBox<>();
+        jComboBoxVAT = new javax.swing.JComboBox<>();
         jTextFieldActualPrice = new javax.swing.JTextField();
         jButtonReset = new javax.swing.JButton();
         lbdate = new javax.swing.JLabel();
@@ -631,19 +631,9 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         jTextFieldTotalPrice.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jTextFieldTotalPrice.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextFieldTotalPrice.setText("0");
-        jTextFieldTotalPrice.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldTotalPriceActionPerformed(evt);
-            }
-        });
 
-        jComboBoxIVA.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "4", "10", "21" }));
-        jComboBoxIVA.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jComboBoxIVA.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBoxIVAActionPerformed(evt);
-            }
-        });
+        jComboBoxVAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "4", "10", "21" }));
+        jComboBoxVAT.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
 
         jTextFieldActualPrice.setEditable(false);
         jTextFieldActualPrice.setBackground(new java.awt.Color(153, 153, 153));
@@ -704,7 +694,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                                 .addComponent(jLabel41)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jComboBoxIVA, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                .addComponent(jComboBoxVAT, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                                             .addGroup(jPanel3Layout.createSequentialGroup()
                                                 .addComponent(jLabel37, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -753,7 +743,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
                     .addComponent(jLabel31)
                     .addComponent(jTextFieldUnitPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel41)
-                    .addComponent(jComboBoxIVA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jComboBoxVAT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(14, 14, 14)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel36)
@@ -797,11 +787,6 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         jTextField1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jTextField1.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextField1.setText("List:");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
-            }
-        });
         getContentPane().add(jTextField1);
         jTextField1.setBounds(1400, 200, 120, 30);
 
@@ -831,7 +816,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
 
         txt.append("\n ------------------------------------------------------------ \n\n");
         txt.append(" Total price (excl. VAT):     ").append(df.format(totalPriceNoVAT)).append("\n");
-        txt.append(" VAT applied:                 ").append(jComboBoxIVA.getSelectedItem().toString()).append("%\n");
+        txt.append(" VAT applied:                 ").append(jComboBoxVAT.getSelectedItem().toString()).append("%\n");
         txt.append(" Total price (incl. VAT):     ").append(df.format(totalPrice)).append("\n");
         txt.append(" Amount paid:                 ").append(df.format(moneyDelivered)).append("\n");
         txt.append(" Change returned:             ").append(df.format(moneyReturned)).append("\n");
@@ -921,7 +906,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
     }//GEN-LAST:event_jButtonWatermelonActionPerformed
 
     private void jButtonCalculatePriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCalculatePriceActionPerformed
-        float VAT = Float.parseFloat(jComboBoxIVA.getSelectedItem().toString());
+        float VAT = Float.parseFloat(jComboBoxVAT.getSelectedItem().toString());
         totalPriceNoVAT = totalPrice / (1 + VAT / 100);
         jTextFieldTotalPrice.setText(String.valueOf(df.format(totalPrice)));
         jTextFieldTotalPriceNoVAT.setText(String.valueOf(df.format(totalPriceNoVAT)));
@@ -944,18 +929,6 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         }
 
     }//GEN-LAST:event_jButtonReturnActionPerformed
-
-    private void jComboBoxIVAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxIVAActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBoxIVAActionPerformed
-
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
-    private void jTextFieldTotalPriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldTotalPriceActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldTotalPriceActionPerformed
 
     private void jButtonResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonResetActionPerformed
 
@@ -1063,7 +1036,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
     private javax.swing.JButton jButtonReturn;
     private javax.swing.JButton jButtonStrawberry;
     private javax.swing.JButton jButtonWatermelon;
-    private javax.swing.JComboBox<String> jComboBoxIVA;
+    private javax.swing.JComboBox<String> jComboBoxVAT;
     private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
