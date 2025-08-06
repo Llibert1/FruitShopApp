@@ -118,7 +118,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         jLabel54 = new javax.swing.JLabel();
         jButtonCharge = new javax.swing.JButton();
         jTextFieldUnitPrice = new javax.swing.JTextField();
-        jTextFieldTotalPriceNoIva = new javax.swing.JTextField();
+        jTextFieldTotalPriceNoVAT = new javax.swing.JTextField();
         jTextFieldMoneyDelivered = new javax.swing.JTextField();
         jTextFieldMoneyReturned = new javax.swing.JTextField();
         jLabel55 = new javax.swing.JLabel();
@@ -585,36 +585,21 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         jTextFieldUnitPrice.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextFieldUnitPrice.setText("0");
 
-        jTextFieldTotalPriceNoIva.setEditable(false);
-        jTextFieldTotalPriceNoIva.setBackground(new java.awt.Color(153, 153, 153));
-        jTextFieldTotalPriceNoIva.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jTextFieldTotalPriceNoIva.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextFieldTotalPriceNoIva.setText("0");
-        jTextFieldTotalPriceNoIva.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldTotalPriceNoIvaActionPerformed(evt);
-            }
-        });
+        jTextFieldTotalPriceNoVAT.setEditable(false);
+        jTextFieldTotalPriceNoVAT.setBackground(new java.awt.Color(153, 153, 153));
+        jTextFieldTotalPriceNoVAT.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jTextFieldTotalPriceNoVAT.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+        jTextFieldTotalPriceNoVAT.setText("0");
 
         jTextFieldMoneyDelivered.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jTextFieldMoneyDelivered.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextFieldMoneyDelivered.setText("0");
-        jTextFieldMoneyDelivered.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldMoneyDeliveredActionPerformed(evt);
-            }
-        });
 
         jTextFieldMoneyReturned.setEditable(false);
         jTextFieldMoneyReturned.setBackground(new java.awt.Color(153, 153, 153));
         jTextFieldMoneyReturned.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jTextFieldMoneyReturned.setHorizontalAlignment(javax.swing.JTextField.CENTER);
         jTextFieldMoneyReturned.setText("0");
-        jTextFieldMoneyReturned.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldMoneyReturnedActionPerformed(evt);
-            }
-        });
 
         jLabel55.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
@@ -727,7 +712,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
                                                 .addGap(27, 27, 27)
                                                 .addComponent(jLabel53, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jTextFieldTotalPriceNoIva, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addComponent(jTextFieldTotalPriceNoVAT, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                             .addComponent(lbhour, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                             .addComponent(lbdate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE))))
@@ -780,7 +765,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
                     .addComponent(jLabel53, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(jTextFieldTotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTextFieldTotalPriceNoIva, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jTextFieldTotalPriceNoVAT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jLabel37, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(32, 32, 32)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -866,18 +851,6 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
 
     }//GEN-LAST:event_jButtonChargeActionPerformed
 
-    private void jTextFieldTotalPriceNoIvaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldTotalPriceNoIvaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldTotalPriceNoIvaActionPerformed
-
-    private void jTextFieldMoneyDeliveredActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldMoneyDeliveredActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldMoneyDeliveredActionPerformed
-
-    private void jTextFieldMoneyReturnedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldMoneyReturnedActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldMoneyReturnedActionPerformed
-
     private void addProductToCart(String productName, int index, JLabel priceLabel) {
         try {
             float kg = Float.parseFloat(jTextFieldKg.getText());
@@ -951,7 +924,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
         float VAT = Float.parseFloat(jComboBoxIVA.getSelectedItem().toString());
         totalPriceNoVAT = totalPrice / (1 + VAT / 100);
         jTextFieldTotalPrice.setText(String.valueOf(df.format(totalPrice)));
-        jTextFieldTotalPriceNoIva.setText(String.valueOf(df.format(totalPriceNoVAT)));
+        jTextFieldTotalPriceNoVAT.setText(String.valueOf(df.format(totalPriceNoVAT)));
     }//GEN-LAST:event_jButtonCalculatePriceActionPerformed
 
     private void jButtonReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReturnActionPerformed
@@ -988,7 +961,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
 
         // Reset text fields
         jTextFieldTotalPrice.setText("0");
-        jTextFieldTotalPriceNoIva.setText("0");
+        jTextFieldTotalPriceNoVAT.setText("0");
         jTextFieldActualPrice.setText("0");
         jTextFieldKg.setText("0");
         jTextFieldMoneyDelivered.setText("0");
@@ -1135,7 +1108,7 @@ public class JFrameFrut extends javax.swing.JFrame implements Runnable {
     private javax.swing.JTextField jTextFieldMoneyDelivered;
     private javax.swing.JTextField jTextFieldMoneyReturned;
     private javax.swing.JTextField jTextFieldTotalPrice;
-    private javax.swing.JTextField jTextFieldTotalPriceNoIva;
+    private javax.swing.JTextField jTextFieldTotalPriceNoVAT;
     private javax.swing.JTextField jTextFieldUnitPrice;
     private javax.swing.JLabel lbdate;
     private javax.swing.JLabel lbhour;
