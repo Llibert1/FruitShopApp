@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
 import javax.swing.Timer;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JFrameFrut extends javax.swing.JFrame {
 
@@ -21,35 +23,18 @@ public class JFrameFrut extends javax.swing.JFrame {
     private Timer clockTimer;
     private String currentDate = "";
 
+    private List<CartItem> cart = new ArrayList<>();
+
     private float totalPrice = 0;
-    private float totalPriceNoVAT = 0;
-
-    private String product, product2, product3, product4, product5, product6, product7, product8, product9, product10, product11, product12;
-    private float quantity, quantity2, quantity3, quantity4, quantity5, quantity6, quantity7, quantity8, quantity9, quantity10, quantity11, quantity12, price, price2, price3, price4,
-            price5, price6, price7, price8, price9, price10, price11, price12;
-
-    private String[] products = {
-        product, product2, product3, product4, product5, product6,
-        product7, product8, product9, product10, product11, product12
-    };
-    private double[] quantities = {
-        quantity, quantity2, quantity3, quantity4, quantity5, quantity6,
-        quantity7, quantity8, quantity9, quantity10, quantity11, quantity12
-    };
-    private double[] prices = {
-        price, price2, price3, price4, price5, price6,
-        price7, price8, price9, price10, price11, price12
-    };
-
-    private String[] validProducts = {
-        "Pear", "Apple", "Banana", "Grape", "Orange", "Peach",
-        "Lemon", "Pineapple", "Strawberry", "Avocado", "Cherry", "Watermelon"
-    };
+    private float netPrice = 0;
+    private float vatAmount = 0;
 
     private float moneyReturned;
     private float moneyDelivered;
 
     private DecimalFormat df = new DecimalFormat(" 0.00");
+
+    private CartManager cartManager = new CartManager(cart);
 
     //CONSTRUCTOR
     public JFrameFrut() {
@@ -65,7 +50,7 @@ public class JFrameFrut extends javax.swing.JFrame {
         getContentPane().setBackground(new Color(0, 100, 0));
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLocationRelativeTo(null);
-
+        jTextAreaList.setText("Select a product to see details.");
     }
 
     private void startClockThread() {
@@ -79,7 +64,7 @@ public class JFrameFrut extends javax.swing.JFrame {
 
     public void initDate() {
         currentDate = LocalDate.now().format(dateFormatter);
-        lbdate.setText(currentDate);  
+        lbdate.setText(currentDate);
     }
 
     public void startDateWatcher() {
@@ -95,24 +80,88 @@ public class JFrameFrut extends javax.swing.JFrame {
         dateTimer.start();
     }
 
-    private void addProductToCart(String productName, int index, JLabel priceLabel) {
+    private void processProductSelection(String productName, JLabel priceLabel) {
         try {
-            float kg = Float.parseFloat(jTextFieldKg.getText());
-            float priceKg = Float.parseFloat(priceLabel.getText());
-            float actualPrice = priceKg * kg;
+            float kg = getKilogramsInput();
+            float pricePerKg = getPriceFromLabel(priceLabel);
+            float VAT = getSelectedVAT();
 
-            products[index] = productName;
-            quantities[index] += kg;
-            prices[index] += actualPrice;
+            updatePrices(kg, pricePerKg, VAT);
+            cartManager.addOrUpdateItem(productName, kg, pricePerKg);
 
-            jTextFieldUnitPrice.setText(String.valueOf(priceKg));
-            jTextFieldActualPrice.setText(String.valueOf(actualPrice));
-
-            totalPrice += actualPrice;
+            showList();
 
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter a valid number for kilograms.", "Input Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private float getKilogramsInput() {
+        return Float.parseFloat(jTextFieldKg.getText());
+    }
+
+    private float getPriceFromLabel(JLabel priceLabel) {
+        return Float.parseFloat(priceLabel.getText());
+    }
+
+    private float getSelectedVAT() {
+        return Float.parseFloat(jComboBoxVAT.getSelectedItem().toString());
+    }
+
+    private void updatePrices(float kg, float pricePerKg, float VAT) {
+        totalPrice += kg * pricePerKg;
+        netPrice = totalPrice / (1 + VAT / 100);
+        vatAmount = totalPrice - netPrice;
+    }
+
+    private void showList() {
+        ReceiptBuilder builder = new ReceiptBuilder(
+                cart,
+                netPrice,
+                vatAmount,
+                totalPrice,
+                moneyDelivered,
+                moneyReturned,
+                jComboBoxVAT.getSelectedItem().toString(),
+                dateFormatter,
+                timeFormatter
+        );
+
+        jTextAreaList.setText(builder.build());
+    }
+
+    private void processPayment() throws NumberFormatException {
+        moneyDelivered = parseMoneyDelivered();
+        moneyReturned = calculateChange();
+
+        if (moneyReturned < 0) {
+            jTextFieldMoneyReturned.setText("Not enough money");
+        } else {
+            jTextFieldMoneyReturned.setText(df.format(moneyReturned));
+        }
+    }
+
+    private float parseMoneyDelivered() throws NumberFormatException {
+        return Float.parseFloat(jTextFieldMoneyDelivered.getText());
+    }
+
+    private float calculateChange() {
+        return moneyDelivered - totalPrice;
+    }
+
+    private void resetPrices() {
+        totalPrice = 0;
+        netPrice = 0;
+        vatAmount = 0;
+        moneyDelivered = 0;
+        moneyReturned = 0;
+    }
+
+    private void resetTextFields() {
+        jTextFieldKg.setText("0");
+        jTextFieldMoneyDelivered.setText("0");
+        jTextFieldMoneyReturned.setText("0");
+        jTextAreaList.setText("Select a product to see details.");
     }
 
     @SuppressWarnings("unchecked")
@@ -159,24 +208,14 @@ public class JFrameFrut extends javax.swing.JFrame {
         jLabel86 = new javax.swing.JLabel();
         jTextFieldKg = new javax.swing.JTextField();
         jPanel3 = new javax.swing.JPanel();
-        jLabel31 = new javax.swing.JLabel();
-        jLabel36 = new javax.swing.JLabel();
         jLabel41 = new javax.swing.JLabel();
         jLabel52 = new javax.swing.JLabel();
-        jLabel53 = new javax.swing.JLabel();
         jLabel54 = new javax.swing.JLabel();
-        jButtonCharge = new javax.swing.JButton();
-        jTextFieldUnitPrice = new javax.swing.JTextField();
-        jTextFieldTotalPriceNoVAT = new javax.swing.JTextField();
         jTextFieldMoneyDelivered = new javax.swing.JTextField();
         jTextFieldMoneyReturned = new javax.swing.JTextField();
         jLabel55 = new javax.swing.JLabel();
-        jButtonCalculatePrice = new javax.swing.JButton();
         jButtonReturn = new javax.swing.JButton();
-        jLabel37 = new javax.swing.JLabel();
-        jTextFieldTotalPrice = new javax.swing.JTextField();
         jComboBoxVAT = new javax.swing.JComboBox<>();
-        jTextFieldActualPrice = new javax.swing.JTextField();
         jButtonReset = new javax.swing.JButton();
         lbdate = new javax.swing.JLabel();
         lbhour = new javax.swing.JLabel();
@@ -596,14 +635,6 @@ public class JFrameFrut extends javax.swing.JFrame {
 
         jPanel3.setBackground(new java.awt.Color(0, 0, 0));
 
-        jLabel31.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel31.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel31.setText("Unit price");
-
-        jLabel36.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel36.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel36.setText("Actual price");
-
         jLabel41.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel41.setForeground(new java.awt.Color(255, 255, 255));
         jLabel41.setText("VAT%");
@@ -612,35 +643,9 @@ public class JFrameFrut extends javax.swing.JFrame {
         jLabel52.setForeground(new java.awt.Color(255, 255, 255));
         jLabel52.setText("Money delivered");
 
-        jLabel53.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel53.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel53.setText("RRP (excl. VAT)");
-
         jLabel54.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel54.setForeground(new java.awt.Color(255, 255, 255));
         jLabel54.setText("Return");
-
-        jButtonCharge.setBackground(new java.awt.Color(255, 153, 0));
-        jButtonCharge.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jButtonCharge.setText("Charge");
-        jButtonCharge.setBorder(javax.swing.BorderFactory.createCompoundBorder());
-        jButtonCharge.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonChargeActionPerformed(evt);
-            }
-        });
-
-        jTextFieldUnitPrice.setEditable(false);
-        jTextFieldUnitPrice.setBackground(new java.awt.Color(153, 153, 153));
-        jTextFieldUnitPrice.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jTextFieldUnitPrice.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextFieldUnitPrice.setText("0");
-
-        jTextFieldTotalPriceNoVAT.setEditable(false);
-        jTextFieldTotalPriceNoVAT.setBackground(new java.awt.Color(153, 153, 153));
-        jTextFieldTotalPriceNoVAT.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jTextFieldTotalPriceNoVAT.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextFieldTotalPriceNoVAT.setText("0");
 
         jTextFieldMoneyDelivered.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jTextFieldMoneyDelivered.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -654,16 +659,6 @@ public class JFrameFrut extends javax.swing.JFrame {
 
         jLabel55.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
 
-        jButtonCalculatePrice.setBackground(new java.awt.Color(255, 153, 0));
-        jButtonCalculatePrice.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jButtonCalculatePrice.setText("Calculate price");
-        jButtonCalculatePrice.setBorder(new javax.swing.border.MatteBorder(null));
-        jButtonCalculatePrice.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonCalculatePriceActionPerformed(evt);
-            }
-        });
-
         jButtonReturn.setBackground(new java.awt.Color(255, 153, 0));
         jButtonReturn.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jButtonReturn.setText("Calculate return");
@@ -673,24 +668,9 @@ public class JFrameFrut extends javax.swing.JFrame {
             }
         });
 
-        jLabel37.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel37.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel37.setText("Total price");
-
-        jTextFieldTotalPrice.setEditable(false);
-        jTextFieldTotalPrice.setBackground(new java.awt.Color(153, 153, 153));
-        jTextFieldTotalPrice.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jTextFieldTotalPrice.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextFieldTotalPrice.setText("0");
-
         jComboBoxVAT.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "4", "10", "21" }));
+        jComboBoxVAT.setSelectedIndex(3);
         jComboBoxVAT.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-
-        jTextFieldActualPrice.setEditable(false);
-        jTextFieldActualPrice.setBackground(new java.awt.Color(153, 153, 153));
-        jTextFieldActualPrice.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jTextFieldActualPrice.setHorizontalAlignment(javax.swing.JTextField.CENTER);
-        jTextFieldActualPrice.setText("0");
 
         jButtonReset.setBackground(new java.awt.Color(255, 0, 0));
         jButtonReset.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -718,104 +698,63 @@ public class JFrameFrut extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(76, 76, 76)
-                        .addComponent(jButtonCalculatePrice, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
                         .addGap(31, 31, 31)
+                        .addComponent(jLabel55)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(lbhour, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                        .addGroup(jPanel3Layout.createSequentialGroup()
-                                            .addComponent(jLabel54)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                            .addComponent(jTextFieldMoneyReturned, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                                .addGroup(jPanel3Layout.createSequentialGroup()
-                                                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel3Layout.createSequentialGroup()
-                                                            .addComponent(jLabel36, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addComponent(jTextFieldActualPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                        .addGroup(jPanel3Layout.createSequentialGroup()
-                                                            .addComponent(jLabel31, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                            .addComponent(jTextFieldUnitPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                    .addComponent(jLabel41)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(jComboBoxVAT, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                                .addGroup(jPanel3Layout.createSequentialGroup()
-                                                    .addComponent(jLabel37, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(jTextFieldTotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addGap(27, 27, 27)
-                                                    .addComponent(jLabel53, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                    .addComponent(jTextFieldTotalPriceNoVAT, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                            .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                .addComponent(lbhour, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addComponent(lbdate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 129, Short.MAX_VALUE))))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel3Layout.createSequentialGroup()
-                                        .addComponent(jButtonCharge, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                                .addComponent(jLabel52)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jTextFieldMoneyDelivered, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                                .addComponent(jLabel41)
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addComponent(jComboBoxVAT, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGap(37, 37, 37)
+                                        .addComponent(jButtonReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addComponent(jLabel54)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel55)
-                                        .addGap(191, 191, 191)))
-                                .addComponent(jButtonReset, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jButtonReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel52)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldMoneyDelivered, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(522, Short.MAX_VALUE))
+                                        .addComponent(jTextFieldMoneyReturned, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(jButtonReset, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(567, 567, 567))
+                            .addComponent(lbdate, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(47, 47, 47)
+                .addContainerGap()
+                .addComponent(lbdate, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(8, 8, 8)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(lbdate, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbhour, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addGroup(jPanel3Layout.createSequentialGroup()
-                            .addComponent(jButtonCharge, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(44, 44, 44))
-                        .addComponent(jLabel55, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(37, 37, 37)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel31)
-                    .addComponent(jTextFieldUnitPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel41)
-                    .addComponent(jComboBoxVAT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(14, 14, 14)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel36)
-                    .addComponent(jTextFieldActualPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(30, 30, 30)
-                .addComponent(jButtonCalculatePrice, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jLabel53, javax.swing.GroupLayout.PREFERRED_SIZE, 21, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTextFieldTotalPrice, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jTextFieldTotalPriceNoVAT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel37, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(32, 32, 32)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel41)
+                            .addComponent(jComboBoxVAT, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(lbhour, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(40, 40, 40)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel52)
-                    .addComponent(jTextFieldMoneyDelivered, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addComponent(jButtonReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(12, 12, 12)
+                    .addComponent(jTextFieldMoneyDelivered, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonReturn, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(43, 43, 43)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel54)
-                    .addComponent(jTextFieldMoneyReturned, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonReset, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(76, Short.MAX_VALUE))
+                    .addComponent(jTextFieldMoneyReturned, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(39, 39, 39)
+                .addComponent(jButtonReset, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(177, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel3);
@@ -825,162 +764,77 @@ public class JFrameFrut extends javax.swing.JFrame {
         jTextAreaList.setColumns(20);
         jTextAreaList.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
         jTextAreaList.setRows(5);
-        jTextAreaList.setText("\nClick \"charge\" after choosing the fruits:\n");
         jScrollPane1.setViewportView(jTextAreaList);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(1320, 120, 490, 830);
+        jScrollPane1.setBounds(1240, 70, 490, 890);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButtonChargeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonChargeActionPerformed
-
-        StringBuilder txt = new StringBuilder();
-        LocalDateTime now = LocalDateTime.now();
-
-        for (int i = 0; i < products.length; i++) {
-            if (validProducts[i].equals(products[i])) {
-                txt.append(String.format(
-                        "\n Product: %-12s Quantity: %s   Price: %s\n",
-                        products[i],
-                        df.format(quantities[i]),
-                        df.format(prices[i])
-                ));
-            }
-        }
-
-        txt.append("\n ------------------------------------------------------------ \n\n");
-        txt.append(" -> Net price:        ").append(df.format(totalPriceNoVAT)).append(" €\n");
-        txt.append(" -> VAT (" + jComboBoxVAT.getSelectedItem().toString() + "%):     ").append(df.format(totalPrice - totalPriceNoVAT)).append(" €\n");
-        txt.append(" -> Total:            ").append(df.format(totalPrice)).append(" €\n\n");
-
-        txt.append(" → Amount paid:      ").append(df.format(moneyDelivered)).append(" €\n");
-        txt.append(" → Change returned:  ").append(df.format(moneyReturned)).append(" €\n");
-
-        txt.append("\n"
-                + "          ******       ******\n"
-                + "        **********   **********\n"
-                + "      ************* *************\n"
-                + "     *****************************\n"
-                + "     *****************************\n"
-                + "     *****************************\n"
-                + "      ***************************\n"
-                + "        ***********************\n"
-                + "          *******************\n"
-                + "            ***************\n"
-                + "              ***********\n"
-                + "                *******\n"
-                + "                  ***\n"
-                + "                   *\n");
-
-        txt.append("\n Thank you for shopping at GoodFruit! :D\n");
-
-        txt.append(" Date: ").append(now.format(dateFormatter)).append("\n");
-        txt.append(" Time: ").append(now.format(timeFormatter));
-
-        jTextAreaList.setText(txt.toString());
-
-    }//GEN-LAST:event_jButtonChargeActionPerformed
-
     private void jButtonPearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPearActionPerformed
-        addProductToCart("Pear", 0, jLabelPear);
+        processProductSelection("Pear", jLabelPear);
     }//GEN-LAST:event_jButtonPearActionPerformed
 
 
     private void jButtonAppleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAppleActionPerformed
-        addProductToCart("Apple", 1, jLabelApple);
+        processProductSelection("Apple", jLabelApple);
     }//GEN-LAST:event_jButtonAppleActionPerformed
 
     private void jButtonBananaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonBananaActionPerformed
-        addProductToCart("Banana", 2, jLabelBanana);
+        processProductSelection("Banana", jLabelBanana);
     }//GEN-LAST:event_jButtonBananaActionPerformed
 
     private void jButtonGrapeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonGrapeActionPerformed
-        addProductToCart("Grape", 3, jLabelGrape);
+        processProductSelection("Grape", jLabelGrape);
     }//GEN-LAST:event_jButtonGrapeActionPerformed
 
     private void jButtonOrangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonOrangeActionPerformed
-        addProductToCart("Orange", 4, jLabelOrange);
+        processProductSelection("Orange", jLabelOrange);
     }//GEN-LAST:event_jButtonOrangeActionPerformed
 
     private void jButtonPeachActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPeachActionPerformed
-        addProductToCart("Peach", 5, jLabelPeach);
+        processProductSelection("Peach", jLabelPeach);
     }//GEN-LAST:event_jButtonPeachActionPerformed
 
     private void jButtonLemonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonLemonActionPerformed
-        addProductToCart("Lemon", 6, jLabelLemon);
+        processProductSelection("Lemon", jLabelLemon);
     }//GEN-LAST:event_jButtonLemonActionPerformed
 
     private void jButtonPineappleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPineappleActionPerformed
-        addProductToCart("Pineapple", 7, jLabelPineapple);
+        processProductSelection("Pineapple", jLabelPineapple);
     }//GEN-LAST:event_jButtonPineappleActionPerformed
 
     private void jButtonStrawberryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonStrawberryActionPerformed
-        addProductToCart("Strawberry", 8, jLabelStrawberry);
+        processProductSelection("Strawberry", jLabelStrawberry);
     }//GEN-LAST:event_jButtonStrawberryActionPerformed
 
     private void jButtonAvocadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAvocadoActionPerformed
-        addProductToCart("Avocado", 9, jLabelAvocado);
+        processProductSelection("Avocado", jLabelAvocado);
     }//GEN-LAST:event_jButtonAvocadoActionPerformed
 
     private void jButtonCherryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCherryActionPerformed
-        addProductToCart("Cherry", 10, jLabelCherry);
+        processProductSelection("Cherry", jLabelCherry);
     }//GEN-LAST:event_jButtonCherryActionPerformed
 
     private void jButtonWatermelonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonWatermelonActionPerformed
-        addProductToCart("Watermelon", 11, jLabelWatermelon);
+        processProductSelection("Watermelon", jLabelWatermelon);
     }//GEN-LAST:event_jButtonWatermelonActionPerformed
-
-    private void jButtonCalculatePriceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCalculatePriceActionPerformed
-        float VAT = Float.parseFloat(jComboBoxVAT.getSelectedItem().toString());
-        totalPriceNoVAT = totalPrice / (1 + VAT / 100);
-        jTextFieldTotalPrice.setText(String.valueOf(df.format(totalPrice)));
-        jTextFieldTotalPriceNoVAT.setText(String.valueOf(df.format(totalPriceNoVAT)));
-    }//GEN-LAST:event_jButtonCalculatePriceActionPerformed
 
     private void jButtonReturnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonReturnActionPerformed
         try {
-            moneyDelivered = Float.parseFloat(jTextFieldMoneyDelivered.getText());
-            moneyReturned = moneyDelivered - totalPrice;
-
-            if (moneyReturned < 0) {
-                jTextFieldMoneyReturned.setText("Not enough money");
-            } else {
-                jTextFieldMoneyReturned.setText(df.format(moneyReturned));
-            }
-
+            processPayment();
+            showList();
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter a valid number for money delivered.", "Input Error", JOptionPane.ERROR_MESSAGE);
             jTextFieldMoneyReturned.setText("");
         }
-
     }//GEN-LAST:event_jButtonReturnActionPerformed
 
     private void jButtonResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonResetActionPerformed
-
-        // Reset text fields
-        jTextFieldTotalPrice.setText("0");
-        jTextFieldTotalPriceNoVAT.setText("0");
-        jTextFieldActualPrice.setText("0");
-        jTextFieldKg.setText("0");
-        jTextFieldMoneyDelivered.setText("0");
-        jTextFieldMoneyReturned.setText("0");
-        jTextFieldUnitPrice.setText("0");
-
-        // Reset text area
-        jTextAreaList.setText("Click \"Charge\" after choosing the fruits:");
-
-        // Reset prices
-        totalPrice = 0;
-        totalPriceNoVAT = 0;
-
-        // Reset arrays
-        for (int i = 0; i < products.length; i++) {
-            products[i] = null;
-            quantities[i] = 0;
-            prices[i] = 0;
-        }
+        cartManager.resetCart();
+        resetPrices();
+        resetTextFields();
     }//GEN-LAST:event_jButtonResetActionPerformed
 
     /**
@@ -1021,8 +875,6 @@ public class JFrameFrut extends javax.swing.JFrame {
     private javax.swing.JButton jButtonApple;
     private javax.swing.JButton jButtonAvocado;
     private javax.swing.JButton jButtonBanana;
-    private javax.swing.JButton jButtonCalculatePrice;
-    private javax.swing.JButton jButtonCharge;
     private javax.swing.JButton jButtonCherry;
     private javax.swing.JButton jButtonGrape;
     private javax.swing.JButton jButtonLemon;
@@ -1035,12 +887,8 @@ public class JFrameFrut extends javax.swing.JFrame {
     private javax.swing.JButton jButtonStrawberry;
     private javax.swing.JButton jButtonWatermelon;
     private javax.swing.JComboBox<String> jComboBoxVAT;
-    private javax.swing.JLabel jLabel31;
-    private javax.swing.JLabel jLabel36;
-    private javax.swing.JLabel jLabel37;
     private javax.swing.JLabel jLabel41;
     private javax.swing.JLabel jLabel52;
-    private javax.swing.JLabel jLabel53;
     private javax.swing.JLabel jLabel54;
     private javax.swing.JLabel jLabel55;
     private javax.swing.JLabel jLabel58;
@@ -1072,13 +920,9 @@ public class JFrameFrut extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea jTextAreaList;
-    private javax.swing.JTextField jTextFieldActualPrice;
     private javax.swing.JTextField jTextFieldKg;
     private javax.swing.JTextField jTextFieldMoneyDelivered;
     private javax.swing.JTextField jTextFieldMoneyReturned;
-    private javax.swing.JTextField jTextFieldTotalPrice;
-    private javax.swing.JTextField jTextFieldTotalPriceNoVAT;
-    private javax.swing.JTextField jTextFieldUnitPrice;
     private javax.swing.JLabel lbdate;
     private javax.swing.JLabel lbhour;
     // End of variables declaration//GEN-END:variables
