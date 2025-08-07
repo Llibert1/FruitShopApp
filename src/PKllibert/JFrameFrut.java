@@ -1,7 +1,6 @@
 /*
-Autor: Llibert
-Escuela Monlau
-2020-2021
+Author: Llibert Matarredona
+Project developed during the Higher National Diploma in Multiplatform Application Development
  */
 package PKllibert;
 
